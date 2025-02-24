@@ -1,5 +1,5 @@
 import streamlit as st
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 import pandas as pd
 import requests
@@ -106,7 +106,7 @@ current_datetime = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
 st.header(f" {current_datetime}")
 
 # Diagramm im Darkmode (schwarzer Hintergrund)
-plt.style.use('dark_background')
+#plt.style.use('dark_background')
 
 # Definiere die Tage für das Diagramm
 today = datetime.today()
