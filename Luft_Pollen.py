@@ -1,7 +1,9 @@
 import streamlit as st
+import matplotlib
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
 
+matplotlib.use("Agg")  # Verhindert Probleme mit dem GUI-Backend in Streamlit
+from datetime import datetime, timedelta
 import requests
 
 
