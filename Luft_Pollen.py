@@ -1,9 +1,7 @@
 import streamlit as st
-import matplotlib
 import matplotlib.pyplot as plt
-
-matplotlib.use("Agg")  # Verhindert Probleme mit dem GUI-Backend in Streamlit
 from datetime import datetime, timedelta
+import pandas as pd
 import requests
 
 
@@ -130,14 +128,14 @@ else:
         st.write(f" **Aktuelle Pollenbelastung heute:** {pollen_values[0]} ({today_level})")
 
         # Diagramm erstellen
-        max_value = max(pollen_values) + 1  # Damit das Diagramm über den höchsten Wert hinaus geht
-        plt.plot(date_labels, pollen_values, marker='o', linestyle='-', label=pollen['Pollenart'])
+       # max_value = max(pollen_values) + 1  # Damit das Diagramm über den höchsten Wert hinaus geht
+        #plt.plot(date_labels, pollen_values, marker='o', linestyle='-', label=pollen['Pollenart'])
 
-    plt.xlabel('Datum')
-    plt.ylabel('Pollenwerte')
-    plt.title(f"Pollenbelastung in {selected_region}")
-    plt.ylim(0, 3)  # y-Achse so setzen, dass der höchste Wert passt
-    plt.legend()
+    #plt.xlabel('Datum')
+    #plt.ylabel('Pollenwerte')
+    #plt.title(f"Pollenbelastung in {selected_region}")
+    #plt.ylim(0, 3)  # y-Achse so setzen, dass der höchste Wert passt
+    #plt.legend()
     
     # Diagramm anzeigen
-    st.pyplot(plt)
+    #st.pyplot(plt)
