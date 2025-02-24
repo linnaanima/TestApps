@@ -1,9 +1,58 @@
 import streamlit as st
 import matplotlib.pyplot as plt
-from Pollen import get_pollen_data
 from datetime import datetime, timedelta
 
+import requests
+
+
+
+def get_pollen_data(region_id):
+    try:
+        response = requests.get("https://opendata.dwd.de/climate_environment/health/alerts/s31fg.json")
+        
+        if response.status_code != 200:
+            print(f"❌ Fehler beim Abruf der DWD-Daten: {response.status_code}")
+            return None
+
+        data = response.json()
+        pollen_vorhersage = []
+
+        # 🔍 Suche nach der richtigen Region
+        for region in data.get("content", []):
+            if str(region.get("region_id")) == region_id:
+                region_name = region.get("region_name", "Unbekannte Region")
+                print(f"\n📍 Region: {region_name} (Kiel)")
+
+                pollen_daten = region.get("Pollen", {})
+                for pollenart, werte in pollen_daten.items():
+                    pollen_vorhersage.append({
+                        "Pollenart": pollenart,
+                        "Heute": werte.get("today", "-1"),
+                        "Morgen": werte.get("tomorrow", "-1"),
+                        "Übermorgen": werte.get("dayafter_to", "-1")
+                    })
+
+                return pollen_vorhersage
+
+        print("⚠️ Keine Pollen-Daten für diese Region gefunden.")
+        return None
+
+    except Exception as e:
+        print(f"❌ Fehler beim Verarbeiten der DWD-Daten: {e}")
+        return None
+
+
+# 🔥 Starte die Abfragen
+#pollen_info = get_pollen_data(REGION_ID)
+
+# 📊 Ausgabe der Pollen- und Luftqualitätsbelastung
+#if pollen_info:
+    #print("\n🌿 Pollenflug-Vorhersage für Kiel:")
+    #for pollen in pollen_info:
+        #print(f"➡️ {pollen['Pollenart']}: Heute {pollen['Heute']}, Morgen {pollen['Morgen']}, Übermorgen {pollen['Übermorgen']}")''
+
 st.title("🌿 Luft Live – PollenData")
+
 
 # Verfügbare Regionen (ohne Unterregionen)
 regions = {
