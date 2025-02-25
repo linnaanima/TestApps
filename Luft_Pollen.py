@@ -52,7 +52,10 @@ def get_pollen_data(region_id):
         #print(f"➡️ {pollen['Pollenart']}: Heute {pollen['Heute']}, Morgen {pollen['Morgen']}, Übermorgen {pollen['Übermorgen']}")''
 
 st.title("🌿 Luft Live – PollenData")
-
+# Zeige das aktuelle Datum und Uhrzeit an
+current_datetime = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
+st.header(f" {current_datetime}")
+st.write(f"\n")
 
 # Verfügbare Regionen (ohne Unterregionen)
 regions = {
@@ -101,10 +104,6 @@ def assess_pollen_level(value):
     else:
         return ' 🥵 Stark'
 
-# Zeige das aktuelle Datum und Uhrzeit an
-current_datetime = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
-st.header(f" {current_datetime}")
-st.write(f"\n")
 
 # Diagramm im Darkmode (schwarzer Hintergrund)
 #plt.style.use('dark_background')
