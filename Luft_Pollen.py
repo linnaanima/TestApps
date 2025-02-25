@@ -55,7 +55,6 @@ st.title("🌿 Luft Live – PollenData")
 # Zeige das aktuelle Datum und Uhrzeit an
 current_datetime = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
 st.header(f" {current_datetime}")
-st.write(f"\n")
 
 # Verfügbare Regionen (ohne Unterregionen)
 regions = {
@@ -105,8 +104,8 @@ def assess_pollen_level(value):
         return ' 🥵 Stark'
 
 
-# Diagramm im Darkmode (schwarzer Hintergrund)
-#plt.style.use('dark_background')
+st.write(f"\n")
+
 
 # Definiere die Tage für das Diagramm
 today = datetime.today()
