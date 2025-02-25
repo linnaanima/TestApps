@@ -104,6 +104,7 @@ def assess_pollen_level(value):
 # Zeige das aktuelle Datum und Uhrzeit an
 current_datetime = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
 st.header(f" {current_datetime}")
+st.write(f"\n")
 
 # Diagramm im Darkmode (schwarzer Hintergrund)
 #plt.style.use('dark_background')
@@ -125,7 +126,7 @@ else:
 
         # Anzeige der aktuellen Pollenbelastung mit Bewertung
         today_level = assess_pollen_level(pollen_values[0])
-        st.write(f" **Heute:** {pollen_values[0]} ({today_level})\n")
+        st.write(f" **Heute:** {pollen_values[0]} ({today_level})")
         st.write(f"\n")
 
 
