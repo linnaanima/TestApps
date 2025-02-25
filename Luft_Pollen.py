@@ -125,7 +125,7 @@ else:
 
         # Anzeige der aktuellen Pollenbelastung mit Bewertung
         today_level = assess_pollen_level(pollen_values[0])
-        st.write(f" **Heute:** {pollen_values[0]} ({today_level})\n")
+        st.write(f" **Heute:** {pollen_values[0]} ({today_level})\n\n")
 
         # Diagramm erstellen
        # max_value = max(pollen_values) + 1  # Damit das Diagramm über den höchsten Wert hinaus geht
