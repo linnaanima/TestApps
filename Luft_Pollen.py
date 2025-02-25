@@ -85,21 +85,21 @@ def parse_pollen_value(value):
 
 def assess_pollen_level(value):
     if value == 0:
-        return 'Keine Belastung'
+        return '🐬 Keine Belastung'
     elif value == 0.5:
-        return 'Geringe Belastung'
+        return '😗 Kaum Belastung'
     elif value == 1:
-        return 'Gering'
+        return '🤨 Gering'
     elif value == 1.5:
-        return 'Gering'
+        return '🤨 Gering'
     elif value == 2:
-        return 'Mäßig'
+        return '🥴 Mäßig'
     elif value == 2.5:
-        return 'Mäßig'
+        return '🥴 Mäßig'
     elif value == 3:
-        return 'Stark'
+        return '🥵 Stark'
     else:
-        return 'Stark'
+        return '🥵 Stark'
 
 # Zeige das aktuelle Datum und Uhrzeit an
 current_datetime = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
@@ -125,7 +125,7 @@ else:
 
         # Anzeige der aktuellen Pollenbelastung mit Bewertung
         today_level = assess_pollen_level(pollen_values[0])
-        st.write(f" **Aktuelle Pollenbelastung heute:** {pollen_values[0]} ({today_level})")
+        st.write(f" **Pollenbelastung heute:** {pollen_values[0]} ({today_level})")
 
         # Diagramm erstellen
        # max_value = max(pollen_values) + 1  # Damit das Diagramm über den höchsten Wert hinaus geht
