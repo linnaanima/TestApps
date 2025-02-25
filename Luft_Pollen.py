@@ -116,7 +116,7 @@ if not pollen_info:
     st.error("⚠️ Keine Pollen-Daten verfügbar für diese Region!")
 else:
     for pollen in pollen_info:
-        st.write(f"**{pollen['Pollenart']}**: Heute {pollen[' Heute ']}, Morgen {pollen[' Morgen ']}, Übermorgen {pollen[' Übermorgen ']} 🌱 ")
+        st.write(f"**{pollen['Pollenart']}**: Heute {pollen['Heute']}, Morgen {pollen['Morgen']}, Übermorgen {pollen['Übermorgen']} 🌱 ")
 
         # Extrahieren und Parsen der Daten für das Diagramm
         pollen_types = ['Heute', 'Morgen', 'Übermorgen']
