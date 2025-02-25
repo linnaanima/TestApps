@@ -85,21 +85,21 @@ def parse_pollen_value(value):
 
 def assess_pollen_level(value):
     if value == 0:
-        return '🐬 Keine '
+        return ' 🐬 Keine '
     elif value == 0.5:
-        return '😗 Kaum '
+        return ' 😗 Kaum '
     elif value == 1:
-        return '🤨 Gering'
+        return ' 🤨 Gering'
     elif value == 1.5:
-        return '🤨 Gering'
+        return ' 🤨 Gering'
     elif value == 2:
-        return '🥴 Mäßig'
+        return ' 🥴 Mäßig'
     elif value == 2.5:
-        return '🥴 Mäßig'
+        return ' 🥴 Mäßig'
     elif value == 3:
-        return '🥵 Stark'
+        return ' 🥵 Stark'
     else:
-        return '🥵 Stark'
+        return ' 🥵 Stark'
 
 # Zeige das aktuelle Datum und Uhrzeit an
 current_datetime = datetime.now().strftime('%d.%m.%Y %H:%M:%S')
@@ -117,7 +117,7 @@ if not pollen_info:
     st.error("⚠️ Keine Pollen-Daten verfügbar für diese Region!")
 else:
     for pollen in pollen_info:
-        st.write(f"➡️ **{pollen['Pollenart']}**: Heute {pollen['Heute']}, Morgen {pollen['Morgen']}, Übermorgen {pollen['Übermorgen']}")
+        st.write(f"🌱**{pollen['Pollenart']}**: Heute {pollen['Heute']}, Morgen {pollen['Morgen']}, Übermorgen {pollen['Übermorgen']}")
 
         # Extrahieren und Parsen der Daten für das Diagramm
         pollen_types = ['Heute', 'Morgen', 'Übermorgen']
