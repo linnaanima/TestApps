@@ -85,9 +85,9 @@ def parse_pollen_value(value):
 
 def assess_pollen_level(value):
     if value == 0:
-        return '🐬 Keine Belastung'
+        return '🐬 Keine '
     elif value == 0.5:
-        return '😗 Kaum Belastung'
+        return '😗 Kaum '
     elif value == 1:
         return '🤨 Gering'
     elif value == 1.5:
@@ -117,7 +117,7 @@ if not pollen_info:
     st.error("⚠️ Keine Pollen-Daten verfügbar für diese Region!")
 else:
     for pollen in pollen_info:
-        st.write(f"➡️ **{pollen['Pollenart']}**: Heute {pollen['Heute']}, Morgen {pollen['Morgen']}, Übermorgen {pollen['Übermorgen']}")
+        st.write(f"➡️ **{pollen['Pollenart']}**: Heute {pollen['Heute']}{pollen_values[0]}, Morgen {pollen['Morgen']}, Übermorgen {pollen['Übermorgen']}")
 
         # Extrahieren und Parsen der Daten für das Diagramm
         pollen_types = ['Heute', 'Morgen', 'Übermorgen']
@@ -125,7 +125,7 @@ else:
 
         # Anzeige der aktuellen Pollenbelastung mit Bewertung
         today_level = assess_pollen_level(pollen_values[0])
-        st.write(f" **Pollenbelastung heute:** {pollen_values[0]} ({today_level})")
+        st.write(f" **Heute:** {pollen_values[0]} ({today_level})")
 
         # Diagramm erstellen
        # max_value = max(pollen_values) + 1  # Damit das Diagramm über den höchsten Wert hinaus geht
