@@ -3,7 +3,10 @@ import streamlit as st
 from datetime import datetime, timedelta
 import pandas as pd
 import requests
-
+import csv
+import smtplib
+from email.mime.text import MIMEText
+import os
 
 
 def get_pollen_data(region_id):
@@ -140,3 +143,56 @@ else:
     
     # Diagramm anzeigen
     #st.pyplot(plt)
+
+
+st.markdown("---")
+st.subheader("🔔 Tägliche Pollen-Benachrichtigung per E-Mail")
+
+with st.form("pollen_alert_form"):
+    user_email = st.text_input("📧 Deine E-Mail-Adresse")
+    selected_pollen = st.multiselect("🌿 Wähle Pollenarten für die Benachrichtigung", 
+                                     ["Ambrosia", "Birke", "Gräser", "Hasel", "Erle", "Roggen", "Beifuß", "Esche"])
+    consent = st.checkbox("✅ Ich stimme zu, dass meine Daten gespeichert werden dürfen.")
+    submitted = st.form_submit_button("🔔 Anmeldung abschicken")
+
+    if submitted:
+        if not user_email or not selected_pollen or not consent:
+            st.warning("⚠️ Bitte alle Felder ausfüllen und Zustimmung geben.")
+        else:
+            # Speichern in CSV-Datei
+            os.makedirs("userdata", exist_ok=True)
+            with open("userdata/subscribers.csv", "a", newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow([user_email, region_id, ",".join(selected_pollen)])
+            st.success("✅ Deine Anmeldung wurde gespeichert!")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
