@@ -1,8 +1,23 @@
-requests
-pandas
-datetime 
-pytz
-geodesic
-folium
-folium_static
-math
+# Hauptframework
+streamlit>=1.31.0
+
+# API und Datenverarbeitung
+requests>=2.31.0
+pandas>=2.2.0
+
+# Zeitzonenverarbeitung
+pytz>=2024.1
+
+# Geografische Berechnungen
+geopy>=2.4.1
+
+# Kartendarstellung
+folium>=0.15.0
+streamlit-folium>=0.16.0
+
+# Mathematische Funktionen
+numpy>=1.26.0
+
+# Optional: für Entwicklung
+# pytest>=7.4.0
+# black>=23.9.1
