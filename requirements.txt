@@ -1,6 +1,6 @@
 requests
-pandas as pd
-datetime import datetime
+pandas
+datetime 
 pytz
 geodesic
 folium
