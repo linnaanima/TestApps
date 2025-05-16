@@ -1,9 +1,8 @@
-import streamlit as st
-import requests
-import pandas as pd
-from datetime import datetime
-import pytz
-from geopy.distance import geodesic
-import folium
-from streamlit_folium import folium_static
-import math
+requests
+pandas as pd
+datetime import datetime
+pytz
+geodesic
+folium
+folium_static
+math
