@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 from geopy.distance import geodesic
 import folium
@@ -10,7 +10,7 @@ import math
 
 # Seitentitel und Beschreibung
 st.title("🚀 Raketenstarts - Weltweit")
-st.markdown("Diese App zeigt kommende Raketenstarts und wann sie in verschiedenen Zeitzonen stattfinden.")
+st.markdown("Diese App zeigt kommende Raketenstarts mit UTC und deutscher Zeit sowie Sichtbarkeit während Umrundungen.")
 
 # Funktion zum Abrufen von Daten über bevorstehende Raketenstarts
 @st.cache_data(ttl=3600)  # Cache der Daten für 1 Stunde
@@ -30,44 +30,58 @@ launch_data = get_launch_data()
 # Deutschland-Koordinaten (ungefährer Mittelpunkt)
 germany_coords = (51.1657, 10.4515)
 
-# Funktion zur Berechnung der theoretischen Sichtbarkeit
-def is_visible_from_germany(launch_site_coords, launch_time_utc):
+# Funktion zur Berechnung der Sichtbarkeit während Umrundungen
+def calculate_orbit_visibility(launch_site_coords, launch_time_utc):
     # Entfernung zwischen Deutschland und Startort berechnen
     distance_km = geodesic(germany_coords, launch_site_coords).kilometers
     
-    # Zeitpunkt des Starts in Deutschland
-    german_tz = pytz.timezone('Europe/Berlin')
-    launch_time_german = launch_time_utc.astimezone(german_tz)
+    # Berechne durchschnittliche Orbithöhe (typischerweise zwischen 200km und 400km für LEO)
+    orbit_height = 300  # km
     
-    # Prüfen, ob es nachts ist (grobe Schätzung: zwischen 20:00 und 5:00 Uhr)
-    is_night = 20 <= launch_time_german.hour or launch_time_german.hour <= 5
+    # Erdradius in km
+    earth_radius = 6371
     
-    # Berechnung des Elevationswinkels (sehr vereinfacht)
-    # Wir nehmen an, dass Raketen bis zu einer Höhe von etwa 200 km sichtbar sein könnten
-    earth_radius = 6371  # Erdradius in km
-    rocket_height = 200  # angenommene maximale Sichthöhe in km
+    # Berechne Umlaufzeit (Periode) basierend auf Kepler'schen Gesetzen
+    # T² = (4π²/GM) * r³, vereinfacht für typische LEO
+    orbit_period_minutes = math.sqrt(((earth_radius + orbit_height)/6700)**3) * 225
     
-    # Maximale Entfernung, bei der die Rakete über dem Horizont sichtbar sein könnte
-    # Basierend auf der Erdkrümmung und der Flughöhe
-    max_distance = math.sqrt((earth_radius + rocket_height)**2 - earth_radius**2)
+    # Berechne, wie oft der Orbit über Deutschland führt (grobe Schätzung)
+    # Bei LEO typischerweise alle 1-2 Umrundungen
+    visibility_frequency = 2  # Sichtbar jede zweite Umrundung
     
-    if distance_km <= 1000 and is_night:
-        return "Wahrscheinlich sichtbar (bei klarem Nachthimmel)"
-    elif distance_km <= max_distance and is_night:
-        return "Möglicherweise sichtbar (am Horizont, perfekte Bedingungen nötig)"
-    elif distance_km <= 1000 and not is_night:
-        return "Eventuell als Kondensstreifen sichtbar (tagsüber)"
-    else:
-        return "Nicht sichtbar"
+    # Berechne die ersten 5 möglichen Sichtbarkeiten
+    visibility_times = []
+    for i in range(1, 6):
+        # Zeit nach i Umrundungen
+        orbit_time = launch_time_utc + timedelta(minutes=orbit_period_minutes * i)
+        
+        # Prüfen, ob diese Umrundung über Deutschland führen könnte
+        if i % visibility_frequency == 0:
+            # Zeitpunkt in deutscher Zeit
+            german_tz = pytz.timezone('Europe/Berlin')
+            orbit_time_german = orbit_time.astimezone(german_tz)
+            
+            # Prüfen, ob es nachts ist (zwischen 20:00 und 5:00 Uhr)
+            is_night = 20 <= orbit_time_german.hour or orbit_time_german.hour <= 5
+            
+            if is_night:
+                visibility = "Gute Sichtbarkeit (Nachthimmel)"
+            else:
+                visibility = "Eingeschränkte Sichtbarkeit (Tageslicht)"
+                
+            visibility_times.append({
+                "umrundung": i,
+                "zeit_utc": orbit_time.strftime("%d.%m.%Y, %H:%M:%S"),
+                "zeit_de": orbit_time_german.strftime("%d.%m.%Y, %H:%M:%S"),
+                "sichtbarkeit": visibility
+            })
+    
+    return visibility_times
 
-# Zeitzonen, die angezeigt werden sollen
+# Vereinfachte Zeitzonen-Liste
 timezones = {
     "Deutschland": "Europe/Berlin",
-    "UTC": "UTC",
-    "US Ostküste": "America/New_York",
-    "US Westküste": "America/Los_Angeles",
-    "Japan": "Asia/Tokyo",
-    "Indien": "Asia/Kolkata"
+    "UTC": "UTC"
 }
 
 if launch_data:
@@ -78,7 +92,6 @@ if launch_data:
         name = launch.get("name", "Unbekannt")
         rocket_name = launch.get("rocket", {}).get("configuration", {}).get("name", "Unbekannte Rakete")
         launch_service_provider = launch.get("launch_service_provider", {}).get("name", "Unbekannter Anbieter")
-        mission_description = launch.get("mission", {}).get("description", "Keine Beschreibung verfügbar")
         mission_type = launch.get("mission", {}).get("type", "Unbekannter Missionstyp")
         
         # Startzeit und -ort
@@ -99,33 +112,32 @@ if launch_data:
         latitude = launch.get("pad", {}).get("latitude")
         longitude = launch.get("pad", {}).get("longitude")
         
-        # Prüfen, ob Koordinaten vorhanden sind
-        if latitude is not None and longitude is not None:
-            launch_site_coords = (float(latitude), float(longitude))
-            visibility = is_visible_from_germany(launch_site_coords, launch_time_utc)
-        else:
-            visibility = "Keine Daten zur Berechnung verfügbar"
-            launch_site_coords = None
-        
-        # Startzeiten in verschiedenen Zeitzonen
+        # Startzeiten in den vereinfachten Zeitzonen
         launch_times = {}
         for tz_name, tz_code in timezones.items():
             timezone = pytz.timezone(tz_code)
             local_time = launch_time_utc.astimezone(timezone)
             launch_times[tz_name] = local_time.strftime("%d.%m.%Y, %H:%M:%S")
+        
+        # Umrundungen und Sichtbarkeit berechnen (falls Koordinaten vorhanden sind)
+        if latitude is not None and longitude is not None:
+            launch_site_coords = (float(latitude), float(longitude))
+            orbit_visibility = calculate_orbit_visibility(launch_site_coords, launch_time_utc)
+        else:
+            orbit_visibility = []
+            launch_site_coords = None
             
         # Daten für die Liste hinzufügen
         launches.append({
             "name": name,
             "rocket": rocket_name,
             "provider": launch_service_provider,
-            "description": mission_description,
             "mission_type": mission_type,
             "pad": pad_name,
             "location": f"{location_name}, {country_code}",
             "coordinates": launch_site_coords,
             "times": launch_times,
-            "visibility": visibility,
+            "orbit_visibility": orbit_visibility,
             "utc_time": launch_time_utc  # Für Sortierung
         })
     
@@ -155,15 +167,18 @@ if launch_data:
         st.markdown(f"**Standort:** {selected_launch['location']}")
         
         st.subheader("Startzeiten")
-        for tz_name, time_str in selected_launch["times"].items():
-            st.markdown(f"**{tz_name}:** {time_str}")
+        st.markdown(f"**UTC:** {selected_launch['times']['UTC']}")
+        st.markdown(f"**Deutschland:** {selected_launch['times']['Deutschland']}")
             
-        st.subheader("Sichtbarkeit von Deutschland")
-        st.markdown(f"**{selected_launch['visibility']}**")
-        
-        if len(selected_launch['description']) > 0:
-            st.subheader("Missionsbeschreibung")
-            st.markdown(selected_launch['description'])
+        st.subheader("Mögliche Umrundungen und Sichtbarkeit")
+        if selected_launch["orbit_visibility"]:
+            for orbit in selected_launch["orbit_visibility"]:
+                st.markdown(f"**Umrundung {orbit['umrundung']}:**")
+                st.markdown(f"  UTC: {orbit['zeit_utc']}")
+                st.markdown(f"  DE: {orbit['zeit_de']}")
+                st.markdown(f"  Sichtbarkeit: {orbit['sichtbarkeit']}")
+        else:
+            st.markdown("Keine Daten zur Berechnung der Umrundungen verfügbar.")
     
     with col2:
         # Karte mit dem Startort
@@ -202,11 +217,9 @@ if launch_data:
         df_data.append({
             "Name": launch["name"],
             "Rakete": launch["rocket"],
-            "Anbieter": launch["provider"],
-            "Standort": launch["location"],
-            "Start (DE)": launch["times"]["Deutschland"],
             "Start (UTC)": launch["times"]["UTC"],
-            "Sichtbarkeit": launch["visibility"]
+            "Start (DE)": launch["times"]["Deutschland"],
+            "Anzahl berechneter Umrundungen": len(launch["orbit_visibility"])
         })
     
     df = pd.DataFrame(df_data)
@@ -214,11 +227,11 @@ if launch_data:
     
     # Hinweis zur Sichtbarkeit
     st.info("""
-        **Hinweis zur Sichtbarkeit:** 
-        Die Sichtbarkeitsinformationen sind nur grobe Schätzungen basierend auf der Entfernung und Tageszeit. 
-        Die tatsächliche Sichtbarkeit hängt von vielen Faktoren ab, einschließlich Wetter, genauer Flugbahn, 
-        Startwinkel, Atmosphärenbedingungen und mehr. Für genauere Informationen konsultieren Sie bitte 
-        spezialisierte Astronomie-Websites oder Apps.
+        **Hinweis zur Berechnung der Umrundungen:** 
+        Die Berechnungen der Orbit-Umrundungen und der Sichtbarkeit sind vereinfachte Schätzungen basierend auf typischen
+        Umlaufbahnen für erdnahe Orbits (LEO). Die tatsächlichen Umlaufbahnen, Zeiten und Sichtbarkeiten hängen von der 
+        spezifischen Flugbahn, dem Orbit-Eintrittswinkel, Wetterbedingungen und weiteren Faktoren ab. Diese Angaben
+        dienen nur zur groben Orientierung.
     """)
     
 else:
